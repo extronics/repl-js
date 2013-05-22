@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>REPL.js</title>
+<style type="text/css" media="screen">
+    html, body, #repl {
+        margin: 0px;
+        padding: 0px;
+        height: 100%;
+        background: #272822;
+    }
+    #editor { 
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 50%;
+    }
+    #output {
+        float: right;
+        width: calc(50% - 10px);
+        min-height: 90%;
+        margin-left: 50%;
+        padding-left: 10px;
+        box-shadow: inset 10px 0px 20px -10px black;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+        font-size: 12px;
+        line-height: normal;
+        color: #F8F8F2;
+    }
+    #error {
+        float: right;
+        width: calc(50% - 10px);
+        min-height: 10%;
+        margin-left: 50%;
+        padding-left: 10px;
+        box-shadow: inset 10px 0px 20px -10px black;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+        font-size: 12px;
+        line-height: normal;
+        color: #F8F8F2;
+    }
+    #error .name {
+        color: orange;
+    }
+</style>
+</head>
+<body>
+
+<div id="repl">
+    <div id="editor"></div>
+    <div id="output">undefined</div>
+    <div id="error">Ok</div>
+</div>
+    
+<script src="http://rawgithub.com/ajaxorg/ace-builds/master/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+    var output = document.getElementById("output");
+    var error  = document.getElementById("error");
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/monokai");
+    editor.setShowPrintMargin(false);
+    var session = editor.getSession();
+    session.setMode("ace/mode/javascript");
+    session.on("change", function(e) {
+        var code = session.getValue();
+        try {
+            var result = eval(code);
+            output.innerText = result;
+            error.innerHTML = "Ok";
+        } catch(e) {
+            output.innerHTML = "undefined";
+            error.innerHTML = '<span class="name">' + e.name + '</span>: <span class="message">' + e.message + '</span>';
+        }
+	    
+    });
+</script>
+</body>
+</html>
