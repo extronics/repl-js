@@ -17,29 +17,33 @@
         left: 0;
         width: 50%;
     }
-    #output {
+    #controls, #output, #error {
         float: right;
         width: calc(50% - 10px);
-        min-height: 90%;
         margin-left: 50%;
         padding-left: 10px;
-        box-shadow: inset 10px 0px 20px -10px black;
         font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
         font-size: 12px;
         line-height: normal;
         color: #F8F8F2;
+        background: #23241d
+    }
+    #controls {
+        text-align: right;
+        min-height: 5%;
+        box-shadow: inset 10px 0px 15px -13px black;
+    }
+    #controls form {
+        padding-top: 5px;
+    }
+    #output {
+        white-space: pre;
+        min-height: 85%;
+        box-shadow: inset 10px 0px 15px -13px black;
     }
     #error {
-        float: right;
-        width: calc(50% - 10px);
         min-height: 10%;
-        margin-left: 50%;
-        padding-left: 10px;
-        box-shadow: inset 10px 0px 20px -10px black;
-        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
-        font-size: 12px;
-        line-height: normal;
-        color: #F8F8F2;
+        box-shadow: inset 10px 0px 15px -13px black;
     }
     #error .name {
         color: orange;
@@ -50,31 +54,59 @@
 
 <div id="repl">
     <div id="editor"></div>
+    <div id="controls">
+        <form>
+            <input type="checkbox" name="autorun" id="autorun" checked /><label for="autorun">auto run</label>
+            <button type="button" id="run">Run</button>
+        </form>
+    </div>
     <div id="output">undefined</div>
     <div id="error">Ok</div>
 </div>
     
 <script src="http://rawgithub.com/ajaxorg/ace-builds/master/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript">
-    var output = document.getElementById("output");
-    var error  = document.getElementById("error");
+    var elOutput = document.getElementById("output");
+    var elError  = document.getElementById("error");
+    var elAuto   = document.getElementById("autorun");
+    var elRun    = document.getElementById("run");
+    var autoRun  = true;
+    var buffer   = [];
+
+    elAuto.addEventListener("change", function(e) {
+        autoRun = e.srcElement.checked;
+    });
+
     var editor = ace.edit("editor");
     editor.setTheme("ace/theme/monokai");
     editor.setShowPrintMargin(false);
     var session = editor.getSession();
     session.setMode("ace/mode/javascript");
+
     session.on("change", function(e) {
+        if (autoRun) runCode();
+    });
+    elRun.addEventListener("click", runCode);
+
+    function runCode() {
         var code = session.getValue();
         try {
             var result = eval(code);
-            output.innerText = result;
-            error.innerHTML = "Ok";
+            var output = buffer.join("\n");
+            if (buffer.length) output += "\n";
+            if (result !== undefined) output += result;
+            elOutput.innerText = output;
+            elError.innerHTML  = "Ok";
+            buffer.length = 0;
         } catch(e) {
-            output.innerHTML = "undefined";
-            error.innerHTML = '<span class="name">' + e.name + '</span>: <span class="message">' + e.message + '</span>';
+            elOutput.innerHTML = "undefined";
+            elError.innerHTML  = '<span class="name">' + e.name + '</span>: <span class="message">' + e.message + '</span>';
         }
-	    
-    });
+    }
+
+    function print(value) {
+        buffer.push(value);
+    }
 </script>
 </body>
 </html>
